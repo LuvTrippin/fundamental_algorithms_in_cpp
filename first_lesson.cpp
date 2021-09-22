@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <math.h>
 #include <vector>
 
@@ -30,18 +30,18 @@ double find_lenght_segment(double x1, double y1, double x2, double y2) // second
 
 double find_area_of_triangle(double x1, double y1, double x2, double y2, double x3, double y3) // third task
 {
-    double side_a = found_lenght_segment(x1, y1, x2, y2);
-    double side_b = found_lenght_segment(x2, y2, x3, y3);
-    double side_c = found_lenght_segment(x3, y3, x1, y1);
+    double side_a = find_lenght_segment(x1, y1, x2, y2);
+    double side_b = find_lenght_segment(x2, y2, x3, y3);
+    double side_c = find_lenght_segment(x3, y3, x1, y1);
     double half_of_perimeter = (side_a + side_b + side_c) / 2;
-    return pow(half_of_perimeter, 2) * sqrt((1 - side_a / half_of_perimeter) 
-        * (1 - side_b / half_of_perimeter) * (1 - side_c / half_of_perimeter));
+    return half_of_perimeter * sqrt((half_of_perimeter - side_a)
+        * (half_of_perimeter - side_b) * (1 - side_c / half_of_perimeter));
 }
 
 struct point // fourth task
 {
     double x, y;
-    point() 
+    point()
     {
         this->x = 0;
         this->y = 0;
@@ -52,82 +52,91 @@ struct point // fourth task
         this->y = y;
     }
 
+    point operator-(const point &term1)
+    {
+        return point(x - term1.x, y - term1.y);
+    }
+
+    void print_point()
+    {
+        std::cout << "(" << x << "," << y << ")";
+    }
+
 };
 
 double find_lenght_segment(point start, point end)
 {
-    if (abs(end.x - start.x) > abs(end.y - start.y)) {
-        return (abs(end.x - start.x) * sqrt(1 + pow((end.y - start.y) / (end.x - start.x), 2)));
-    }
-    else {
-        return (abs(end.y - start.y) * sqrt(1 + pow((end.x - start.x) / (end.y - start.y), 2)));
-    }
+    return find_lenght_segment(start.x, start.y, end.x, end.y);
 }
 
 double find_area_of_triangle(point vertex1, point vertex2, point vertex3)
 {
-
-    double side_a = found_lenght_segment(vertex1, vertex2);
-    double side_b = found_lenght_segment(vertex2, vertex3);
-    double side_c = found_lenght_segment(vertex3, vertex1);
-    double half_of_perimeter = (side_a + side_b + side_c) / 2;
-    return pow(half_of_perimeter, 2) * sqrt((1 - side_a / half_of_perimeter)
-        * (1 - side_b / half_of_perimeter) * (1 - side_c / half_of_perimeter));
+    return find_area_of_triangle(vertex1.x, vertex1.y, vertex2.x, vertex2.y, vertex3.x, vertex3.y);
 }
 
-double find_max_coordinate(const std::vector<point> &points)
-{
-    double max_coordinate = -10000000000000;
-    for (int i = 0; i < points.size(); i++)
-    {
-        if (points[i].x > max_coordinate) 
-        {
-            max_coordinate = points[i].x;
-        }
-        if (points[i].y > max_coordinate)
-        {
-            max_coordinate = points[i].y;
-        }
-    }
-    return max_coordinate;
-}
 
-double find_area_of_polygon(const std::vector<point> &vertexes) //fifth task
+double find_area_of_polygon(const std::vector<point>& vertexes) //fifth task
 {
-    double max_coordinate = find_max_coordinate(vertexes);
     double area_of_polygon = 0;
     for (int i = 0; i < vertexes.size() - 1; i++)
-    {   
-        area_of_polygon += (vertexes[i].x * vertexes[i + 1].y) / max_coordinate;
-        area_of_polygon -= (vertexes[i + 1].x * vertexes[i].y) / max_coordinate;
+    {
+        area_of_polygon += (vertexes[i].x * vertexes[i + 1].y);
+        area_of_polygon -= (vertexes[i + 1].x * vertexes[i].y);
     }
-    area_of_polygon += (vertexes[vertexes.size() - 1].x * vertexes[0].y) / max_coordinate;
-    area_of_polygon -= (vertexes[vertexes.size() - 1].y * vertexes[0].x) / max_coordinate;
-    return (abs(area_of_polygon) * abs(max_coordinate) / 2);
+    area_of_polygon += (vertexes[vertexes.size() - 1].x * vertexes[0].y);
+    area_of_polygon -= (vertexes[vertexes.size() - 1].y * vertexes[0].x);
+    return (abs(area_of_polygon) / 2);
 }
 
 double find_total_area_of_rectangles(point vert1_1, point vert1_2, point vert2_1, point vert2_2) // sixth task
-{   
-
-    if (vert1_1.x > vert2_2.x || vert2_1.x > vert1_2.x || vert1_1.y > vert2_2.y || vert2_1.y > vert1_2.y)
+{
+    double left_end1 = std::min(vert1_1.x, vert1_2.x);
+    double right_end1 = std::max(vert1_1.x, vert1_2.x);
+    double left_end2 = std::min(vert2_1.x, vert2_2.x);
+    double right_end2 = std::max(vert2_1.x, vert2_2.x);
+    double high_end1 = std::max(vert1_1.y, vert1_2.y);
+    double low_end1 = std::min(vert1_1.y, vert1_2.y);
+    double high_end2 = std::max(vert2_1.y, vert2_2.y);
+    double low_end2 = std::min(vert2_1.y, vert2_2.y);
+    if (std::min(right_end1, right_end2) < std::max(left_end1, left_end2) || std::min(high_end1, high_end2) < std::max(low_end1, low_end2))
     {
         return 0;
     }
-    else
-    {
-        return ((std::min(vert1_2.x, vert2_2.x) - std::max(vert1_1.x, vert2_1.x)) * (std::min(vert1_2.y, vert2_2.y) - std::max(vert1_1.y, vert2_1.y)));
-    }
-}
-    
-int main()
-{
-    std::cout << found_lenght_segment(-1, 7, 7, 1) << std::endl << found_area_of_triangle(3, 3, 1, 4, -1, 1);
-    std::cout << std::endl;
-    std::cout << found_lenght_segment(point(-1,7), point(7,1)) << std::endl << found_area_of_triangle(point(3,3), point(1,4), point(-1,1));
-    std::cout << std::endl;
-    std::cout << found_total_area_of_rectangles(1., 1., 2., 2., 1.5, 1., 3., 2.);
-    std::cout << std::endl;
-    std::vector<point> vertexes = {point(3,4), point(5,11), point(12,8), point(9,5), point(5,6) };
-    std::cout << found_area_of_polygon(vertexes);
+
+    return ( (std::min(right_end1, right_end2) - std::max(left_end1, left_end2)) * (std::min(high_end1, high_end2) - std::max(low_end1, low_end2)));
 }
 
+double direction(point p1, point p2, point p3)
+{
+    return ((p3.x - p1.x) * (p2.y - p1.y) - (p2.x - p1.x) * (p3.y - p1.y));
+}
+
+bool on_segment(point p1, point p2, point p3)
+{
+    return (std::min(p1.x, p2.x) <= p3.x && p3.x <= std::max(p1.x, p2.x) && std::min(p1.y, p2.y) <= p3.y && p3.y <= std::max(p1.y, p2.y));
+}
+
+bool segments_intersect(point start1, point end1, point start2, point end2) // eighth task
+{
+    double d1 = direction(start2, end2, start1);
+    double d2 = direction(start2, end2, end1);
+    double d3 = direction(start1, end1, start2);
+    double d4 = direction(start2, end2, end2);
+
+    return ((d1 > 0 && d2 < 0 || d1 < 0 && d2 > 0) && (d3 > 0 && d4 < 0 || d3 < 0 && d4 > 0) || d1 == 0 && on_segment(start2, end2, start1)
+        || d2 == 0 && on_segment(start2, end2, end1)) || d3 == 0 && on_segment(start1, end1, start2) || d4 == 0 && on_segment(start1, end1, end2);
+}
+
+int main()
+{
+    std::cout << find_lenght_segment(-1, 7, 7, 1) << std::endl << find_area_of_triangle(3, 3, 1, 4, -1, 1);
+    std::cout << std::endl;
+    std::cout << find_lenght_segment(point(-1, 7), point(7, 1)) << std::endl << find_area_of_triangle(point(3, 3), point(1, 4), point(-1, 1));
+    std::cout << std::endl;
+    std::cout << find_total_area_of_rectangles(point(1,1), point(2,2), point(1.5,1), point(3,2));
+    std::cout << std::endl;
+    std::vector<point> vertexes = { point(3,4), point(5,11), point(12,8), point(9,5), point(5,6) };
+    std::cout << find_area_of_polygon(vertexes) << std::endl;
+    (point(12, 4) - point(9, 1)).print_point();
+    std::cout << std::endl << segments_intersect(point(0, 0), point(1, 2), point(1, 0), point(2, 2));
+}
