@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-
+#include <random>
 
 bool sum_is_equal_to(int term1, int term2, int possible_sum) // first task
 {
@@ -52,7 +52,7 @@ struct point // fourth task
         this->y = y;
     }
 
-    point operator-(const point &term1)
+    point operator-(const point& term1) const
     {
         return point(x - term1.x, y - term1.y);
     }
@@ -103,8 +103,10 @@ double find_total_area_of_rectangles(point vert1_1, point vert1_2, point vert2_1
         return 0;
     }
 
-    return ( (std::min(right_end1, right_end2) - std::max(left_end1, left_end2)) * (std::min(high_end1, high_end2) - std::max(low_end1, low_end2)));
+    return ((std::min(right_end1, right_end2) - std::max(left_end1, left_end2)) * (std::min(high_end1, high_end2) - std::max(low_end1, low_end2)));
 }
+
+
 
 double direction(point p1, point p2, point p3)
 {
@@ -127,16 +129,54 @@ bool segments_intersect(point start1, point end1, point start2, point end2) // e
         || d2 == 0 && on_segment(start2, end2, end1)) || d3 == 0 && on_segment(start1, end1, start2) || d4 == 0 && on_segment(start1, end1, end2);
 }
 
+// прямоугольники вектора задаются парой углов : левым нижним и правым верхним, 
+//функция возвращает примерную площадь, найденную методом монте-карло
+double polygon_union_square_by_MK(const std::vector<std::pair<point,point>> &rects, int trials) 
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    double low_x = DBL_MAX, low_y = DBL_MAX, hi_x = DBL_MIN, hi_y = DBL_MIN;
+    for (auto r : rects)
+    {
+        low_x = std::min(low_x, r.first.x);
+        low_y = std::min(low_y, r.first.y);
+        hi_x = std::max(hi_x, r.second.x);
+        hi_y = std::max(hi_y, r.second.y);
+    }
+    std::uniform_real_distribution<> dis_x(low_x, hi_x);
+    std::uniform_real_distribution<> dis_y(low_y, hi_y);
+
+    int inside = 0;
+    for (size_t i = 0; i < trials; i++)
+    {
+        double a = dis_x(gen), b = dis_y(gen);
+        for (auto& r : rects)
+        {
+            if (r.first.x <= a && r.first.y <= b && r.second.x >= a && r.second.y >= b)
+            {
+                inside++;
+                break;
+            }
+        }
+    }
+    return inside * (hi_x - low_x) * (hi_y - low_y) / trials;
+}
+
 int main()
 {
     std::cout << find_lenght_segment(-1, 7, 7, 1) << std::endl << find_area_of_triangle(3, 3, 1, 4, -1, 1);
     std::cout << std::endl;
     std::cout << find_lenght_segment(point(-1, 7), point(7, 1)) << std::endl << find_area_of_triangle(point(3, 3), point(1, 4), point(-1, 1));
     std::cout << std::endl;
-    std::cout << find_total_area_of_rectangles(point(1,1), point(2,2), point(1.5,1), point(3,2));
+    std::cout << find_total_area_of_rectangles(point(1, 1), point(2, 2), point(1.5, 1), point(3, 2));
     std::cout << std::endl;
     std::vector<point> vertexes = { point(3,4), point(5,11), point(12,8), point(9,5), point(5,6) };
     std::cout << find_area_of_polygon(vertexes) << std::endl;
     (point(12, 4) - point(9, 1)).print_point();
     std::cout << std::endl << segments_intersect(point(0, 0), point(1, 2), point(1, 0), point(2, 2));
+
+    std::vector<std::pair<point, point>> rects;
+    rects.push_back({ point(), point(1, 1) });
+    rects.push_back({ point(2, 2), point(3, 3) });
+    std::cout << polygon_union_square_by_MK(rects, 1000);
 }
