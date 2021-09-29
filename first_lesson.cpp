@@ -131,7 +131,7 @@ bool segments_intersect(point start1, point end1, point start2, point end2) // e
 
 // прямоугольники вектора задаются парой углов : левым нижним и правым верхним, 
 //функция возвращает примерную площадь, найденную методом монте-карло
-double polygon_union_square_by_MK(const std::vector<std::pair<point,point>> &rects, int trials) 
+double polygon_union_square_by_MK(const std::vector<std::pair<point, point>>& rects, int trials)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -162,6 +162,37 @@ double polygon_union_square_by_MK(const std::vector<std::pair<point,point>> &rec
     return inside * (hi_x - low_x) * (hi_y - low_y) / trials;
 }
 
+int nod(int a, int b)
+{
+    while (a != 0 and b != 0)
+    {
+        if (a > b)
+        {
+            a = a % b;
+        }
+        else
+        {
+            b = b % a;
+        }
+    }
+    return (a + b);
+}
+
+int count_of_points_inside_polygon(const std::vector<point>& vertexes)
+{
+    double S = find_area_of_polygon(vertexes);
+    point delta = point();
+    int count_points = 0;
+    for (int i = 0; i < vertexes.size() - 1; i++)
+    {
+        delta = vertexes[i] - vertexes[i + 1];
+        count_points += nod(abs(delta.x), abs(delta.y));
+    }
+    delta = vertexes.back() - vertexes[0];
+    count_points += nod(abs(delta.x), abs(delta.y));
+    return  S - count_points / 2. + 1;
+}
+
 int main()
 {
     std::cout << find_lenght_segment(-1, 7, 7, 1) << std::endl << find_area_of_triangle(3, 3, 1, 4, -1, 1);
@@ -173,10 +204,13 @@ int main()
     std::vector<point> vertexes = { point(3,4), point(5,11), point(12,8), point(9,5), point(5,6) };
     std::cout << find_area_of_polygon(vertexes) << std::endl;
     (point(12, 4) - point(9, 1)).print_point();
-    std::cout << std::endl << segments_intersect(point(0, 0), point(1, 2), point(1, 0), point(2, 2));
+    std::cout << std::endl << segments_intersect(point(0, 0), point(1, 2), point(1, 0), point(2, 2)) << std::endl;
 
     std::vector<std::pair<point, point>> rects;
     rects.push_back({ point(), point(1, 1) });
     rects.push_back({ point(2, 2), point(3, 3) });
-    std::cout << polygon_union_square_by_MK(rects, 1000);
+   // std::cout << polygon_union_square_by_MK(rects, 1000);
+    std::vector<point> new_vertexes = { {2, 0}, {3, 1}, {2, 3}, {5, 4}, {6, 1}, {8, 4}, {6, 6}, {7, 8}, {3, 7}, {1, 8}, {1, 6}, {4, 5}, {0, 4} };
+    std::cout << count_of_points_inside_polygon(new_vertexes);
+
 }
