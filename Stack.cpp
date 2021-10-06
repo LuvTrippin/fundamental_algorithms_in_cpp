@@ -102,60 +102,20 @@ public:
 };
 
 
-
-void test_stack_arr(int k, int n)
+template<typename Stack, typename T>
+void test_stack(Stack& s, int k, int n)
 {
     int count = n;
-    stackM<int> arrStack(n);
     for (; k != 0; k--)
     {
         while (count != 0)
         {
-            arrStack.push(1);
+            s.push(1);
             count--;
         }
         while (count != n)
         {
-            arrStack.pop();
-            count++;
-        }
-    }
-}
-
-void test_stack_list(int k, int n)
-{
-    int count = n;
-    stackL<int> liststack;
-    for (; k != 0; k--)
-    {
-        while (count != 0)
-        {
-            liststack.push(1);
-            count--;
-        }
-
-        while (count != n)
-        {
-            liststack.pop();
-            count++;
-        }
-    }
-}
-
-void test_stack(int k, int n)
-{
-    int count = n;
-    std::stack <int> Stack;
-    for (; k != 0; k--)
-    {
-        while (count != 0)
-        {
-            Stack.push(1);
-            count--;
-        }
-        while (count != n)
-        {
-            Stack.pop();
+            s.pop();
             count++;
         }
     }
@@ -178,7 +138,7 @@ void print_stack(Stack& st) {
 }
 
 template <typename Stack, typename T>
-void delete_elem_from_stack(Stack& src, T elem)
+void delete_elem_from_stack(Stack& src,const T &elem)
 {
     Stack newStack(src.size());
     while (src.size())
@@ -186,12 +146,8 @@ void delete_elem_from_stack(Stack& src, T elem)
         if (elem != src.top())
         {
             newStack.push(src.top());
-            src.pop();
         }
-        else
-        {
-            src.pop();
-        }
+        src.pop();
     }
     while (newStack.size())
     {
@@ -206,11 +162,6 @@ void stack_sort(Stack& src)
     Stack first(src.size()), second(src.size());
     while (src.size())
     {
-        if (first.size() == 0)
-        {
-            first.push(src.top());
-            src.pop();
-        }
         while (first.size() && src.top() <= first.top())
         {
             second.push(first.top());
@@ -231,55 +182,69 @@ void stack_sort(Stack& src)
     }
 }
 
+template <typename Stack>
+void mov_elems_from_stack_to_stack(Stack &source, Stack &dest)
+{
+    if (!source.size())
+        return;
+    dest.push(source.top());
+    source.pop();
+    while (source.size() && source.top() > dest.top())
+    {
+        dest.push(source.top());
+        source.pop();
+    }
+}
+
 int main()
-{       
+{
     //double start_time = clock(); // начальное время
     //test_stack_arr(pow(10, 8), pow(10, 0));
     //test_stack_list(pow(10, 8), pow(10, 0));
     //test_stack(pow(10, 8), pow(10, 0));
     //double end_time = clock(); // конечное время
-    /*stackM<int> newStack(12);
-    newStack.push(1);
-    newStack.push(10);
-    newStack.push(12);
-    newStack.push(0);
-    newStack.push(1);
-    newStack.push(3);
-    newStack.push(4);
-    newStack.push(98);
-    newStack.push(11);
-    newStack.push(87);
-    newStack.push(5);
-    newStack.push(2);
-    print_stack(newStack);
-    stack_sort(newStack);
-    print_stack(newStack);*/
-    /*stackM<char> newStack(12);
-    newStack.push('a');
-    newStack.push('l');
-    newStack.push('q');
-    newStack.push('b');
-    newStack.push('u');
-    newStack.push('y');
-    newStack.push('w');
-    newStack.push('e');
-    newStack.push('x');
-    newStack.push('k');
-    newStack.push('s');
-    newStack.push('c');
-    print_stack(newStack);
-    stack_sort(newStack);
-    print_stack(newStack);*/
+    //stackM<int> newStack(12);
+    //newStack.push(1);
+    //newStack.push(10);
+    //newStack.push(12);
+    //newStack.push(0);
+    //newStack.push(1);
+    //newStack.push(3);
+    //newStack.push(4);
+    //newStack.push(98);
+    //newStack.push(11);
+    //newStack.push(87);
+    //newStack.push(5);
+    //newStack.push(2);
+    //print_stack(newStack);
+    //stack_sort(newStack);
+    //print_stack(newStack);
+    //stackM<char> newStack(12);
+    //newStack.push('a');
+    //newStack.push('l');
+    //newStack.push('q');
+    //newStack.push('b');
+    //newStack.push('u');
+    //newStack.push('y');
+    //newStack.push('w');
+    //newStack.push('e');
+    //newStack.push('x');
+    //newStack.push('k');
+    //newStack.push('s');
+    //newStack.push('c');
+    //print_stack(newStack);
+    //stack_sort(newStack);
+    //print_stack(newStack);
 
-    stackM<int> newStack(10);
-    newStack.push(1);
-    newStack.push(2);
-    newStack.push(1);
-    newStack.push(3);
-    newStack.push(1);
-    newStack.push(4);
-    newStack.push(1);
-    newStack.push(5);
-    delete_elem_from_stack(newStack, 1);
-    print_stack(newStack);
+    //stackM<int> newStack1(10);
+    //newStack1.push(1);
+    //newStack1.push(2);
+    //newStack1.push(1);
+    //newStack1.push(3);
+    //newStack1.push(1);
+    //newStack1.push(4);
+    //newStack1.push(1);
+    //newStack1.push(5);
+    //delete_elem_from_stack(newStack1, 1);
+    //print_stack(newStack1);
 }
