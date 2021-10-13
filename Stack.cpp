@@ -4,59 +4,79 @@
 #include <vector>
 #include <stack> 
 #include <ctime>
-
+#include <string>
 
 template <typename T>
 class stackM
 {
 private:
     unsigned int sizeOfStack;
+    int capacity;
     T* data;
 
 public:
-    stackM(const unsigned int maxSize)
-    {
-        sizeOfStack = 0;
-        data = new T[maxSize];
-    }
-
-    ~stackM()
-    {
-        delete[]data;
-    }
-
-    const T& top()const
-    {
-        return data[sizeOfStack - 1];
-    }
-
-    T& top()
-    {
-        return data[sizeOfStack - 1];
-    }
-
-    void push(T&& elem)
-    {
-        data[sizeOfStack] = elem;
-        sizeOfStack++;
-    }
-
-    void push(const T& elem)
-    {
-        data[sizeOfStack] = elem;
-        sizeOfStack++;
-    }
-
-    void pop()
-    {
-        sizeOfStack--;
-    }
-
-    int size()
-    {
-        return sizeOfStack;
-    }
+    stackM(const unsigned int maxSize = 50000);
+    ~stackM();
+    const T& top()const;
+    T& top();
+    void push(T&& elem);
+    void push(const T& elem);
+    void pop();
+    int size();
+    typedef typename T value_type;
 };
+
+template <typename T>
+stackM<T>::stackM(const unsigned int maxSize)
+{
+    sizeOfStack = 0;
+    data = new T[maxSize];
+
+}
+
+template <typename T>
+stackM<T>::~stackM()
+{
+    delete[]data;
+}
+
+template <typename T>
+const T& stackM<T>::top()const
+{
+    return data[sizeOfStack - 1];
+}
+
+template <typename T>
+T& stackM<T>::top()
+{
+    return data[sizeOfStack - 1];
+}
+
+template <typename T>
+void stackM<T> ::push(T&& elem)
+{
+    data[sizeOfStack] = elem;
+    sizeOfStack++;
+}
+
+template <typename T>
+void stackM<T> ::push(const T& elem)
+{
+    data[sizeOfStack] = elem;
+    sizeOfStack++;
+}
+
+template <typename T>
+void stackM<T> ::pop()
+{
+    sizeOfStack--;
+}
+
+template <typename T>
+int stackM<T> ::size()
+{
+    return sizeOfStack;
+}
 
 template <typename T>
 class stackL
@@ -138,7 +158,7 @@ void print_stack(Stack& st) {
 }
 
 template <typename Stack, typename T>
-void delete_elem_from_stack(Stack& src,const T &elem)
+void delete_elem_from_stack(Stack& src, const T& elem)
 {
     Stack newStack(src.size());
     while (src.size())
@@ -159,7 +179,7 @@ void delete_elem_from_stack(Stack& src,const T &elem)
 template <typename Stack>
 void stack_sort(Stack& src)
 {
-    Stack first(src.size()), second(src.size());
+    Stack first, second;
     while (src.size())
     {
         while (first.size() && src.top() <= first.top())
@@ -183,7 +203,7 @@ void stack_sort(Stack& src)
 }
 
 template <typename Stack>
-void mov_elems_from_stack_to_stack(Stack &source, Stack &dest)
+void mov_elems_from_stack_to_stack(Stack& source, Stack& dest)
 {
     if (!source.size())
         return;
@@ -196,55 +216,164 @@ void mov_elems_from_stack_to_stack(Stack &source, Stack &dest)
     }
 }
 
+
+template <typename Stack>
+void from_stack_to_stack(Stack& s1, Stack& s2)
+{
+    while (s1.size())
+    {
+        s2.push(s1.top());
+        s1.pop();
+    }
+}
+
+template <typename Stack>
+bool equal_stack(Stack& Stack1, Stack& Stack2)
+{
+    Stack tmp1, tmp2, tmp3, tmp4;
+    if (Stack1.size() != Stack2.size())
+    {
+        return 0;
+    }
+    while (Stack1.size())
+    {
+        tmp1.push(Stack1.top());
+        tmp2.push(Stack2.top());
+        tmp3.push(Stack1.top());
+        tmp4.push(Stack2.top());
+        Stack1.pop();
+        Stack2.pop();
+    }
+    while (tmp3.size())
+    {
+        Stack1.push(tmp3.top());
+        Stack2.push(tmp4.top());
+        tmp3.pop();
+        tmp4.pop();
+    }
+    sort_stack(tmp1);
+    sort_stack(tmp2);
+    while (tmp1.size())
+    {
+        if (tmp1.top() != tmp2.top())
+        {
+            return 0;
+        }
+        tmp1.pop();
+        tmp2.pop();
+
+    }
+    return 1;
+}
+
+template <typename Stack>
+void quick_sort(Stack& s)
+{
+    if (s.size() < 2)
+    {
+        return;
+    }
+    Stack l, g, e;
+    auto pivot = s.top();
+    while (s.size())
+    {
+        if (pivot == s.top())
+        {
+            e.push(pivot);
+            s.pop();
+        }
+        if (pivot < s.top())
+        {
+            g.push(s.top());
+            s.pop();
+        }
+        if (pivot > s.top())
+        {
+            l.push(s.top());
+            s.pop();
+        }
+    }
+
+    quick_sort(l);
+    quick_sort(g);
+    from_stack_to_stack(g, e);
+    from_stack_to_stack(e, s);
+    from_stack_to_stack(l, e);
+    from_stack_to_stack(e, s);
+
+}
+
+
+template <typename Stack>
+void merge_stack(Stack &s1, Stack &s2)
+{
+    auto a = s1.top();
+    stack_sort(s1);
+    bool b = a != s1.top();
+    Stack newStack;
+
+    from_stack_to_stack(s1, s2);
+    from_stack_to_stack(s2, newStack);
+    stack_sort(newStack);
+    from_stack_to_stack(newStack, s2);
+    from_stack_to_stack(s2, s1);
+
+    if (!b)
+    {
+        return;
+    }
+
+    from_stack_to_stack(s1, s2);
+    from_stack_to_stack(s2, newStack);
+    from_stack_to_stack(newStack, s1);
+
+}
+
+bool correct_bracket_sequence(std::string& s)
+{
+    std::stack<char> tmp;
+
+    for (int i = 0; i < s.size(); i++)
+    {
+
+        if ((s[i] == ']' or s[i] == ')' or s[i] == '}' or s[i] == '>') && tmp.size())
+            return 0;
+
+        if (s[i] == '[' or s[i] == '(' or s[i] == '{' or s[i] == '<')
+        {
+            tmp.push(s[i]);
+        }
+
+        else if ((s[i] == ']' && tmp.top() == '[') || (s[i] == ')' && tmp.top() == '(') || (s[i] == '}' && tmp.top() == '{') || (s[i] = '>' && tmp.top() == '<'))
+        {
+            tmp.pop();
+        }
+
+    }
+    if (tmp.size())
+        return 0;
+    else
+        return 1;
+}
+
 int main()
 {
-    //double start_time = clock(); // начальное время
-    //test_stack_arr(pow(10, 8), pow(10, 0));
-    //test_stack_list(pow(10, 8), pow(10, 0));
-    //test_stack(pow(10, 8), pow(10, 0));
-    //double end_time = clock(); // конечное время
-    //stackM<int> newStack(12);
-    //newStack.push(1);
-    //newStack.push(10);
-    //newStack.push(12);
-    //newStack.push(0);
-    //newStack.push(1);
-    //newStack.push(3);
-    //newStack.push(4);
-    //newStack.push(98);
-    //newStack.push(11);
-    //newStack.push(87);
-    //newStack.push(5);
-    //newStack.push(2);
-    //print_stack(newStack);
-    //stack_sort(newStack);
-    //print_stack(newStack);
-    //stackM<char> newStack(12);
-    //newStack.push('a');
-    //newStack.push('l');
-    //newStack.push('q');
-    //newStack.push('b');
-    //newStack.push('u');
-    //newStack.push('y');
-    //newStack.push('w');
-    //newStack.push('e');
-    //newStack.push('x');
-    //newStack.push('k');
-    //newStack.push('s');
-    //newStack.push('c');
-    //print_stack(newStack);
-    //stack_sort(newStack);
-    //print_stack(newStack);
 
-    //stackM<int> newStack1(10);
-    //newStack1.push(1);
-    //newStack1.push(2);
-    //newStack1.push(1);
-    //newStack1.push(3);
-    //newStack1.push(1);
-    //newStack1.push(4);
-    //newStack1.push(1);
-    //newStack1.push(5);
-    //delete_elem_from_stack(newStack1, 1);
-    //print_stack(newStack1);
+    stackM<int> newStack1;
+    stackM<int> newStack2;
+
+    newStack1.push(0);
+    newStack1.push(1);
+    newStack1.push(4);
+    newStack1.push(7);
+    newStack1.push(10);
+
+    newStack2.push(1);
+    newStack2.push(2);
+    newStack2.push(3);
+    newStack2.push(9);
+    newStack2.push(21);
+    merge_stack(newStack1, newStack2);
+
+    print_stack(newStack1);
 }
