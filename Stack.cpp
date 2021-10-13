@@ -216,14 +216,19 @@ void mov_elems_from_stack_to_stack(Stack& source, Stack& dest)
     }
 }
 
+template <typename Stack>
+void move_top_stack_to_stack(Stack& source, Stack& dest)
+{
+    dest.push(source.top());
+    source.pop();
+}
 
 template <typename Stack>
-void from_stack_to_stack(Stack& s1, Stack& s2)
+void from_stack_to_stack(Stack& source, Stack& dest)
 {
-    while (s1.size())
+    while (source.size())
     {
-        s2.push(s1.top());
-        s1.pop();
+        move_top_stack_to_stack(source, dest);
     }
 }
 
@@ -282,12 +287,12 @@ void quick_sort(Stack& s)
             e.push(pivot);
             s.pop();
         }
-        if (pivot < s.top())
+        else if (pivot < s.top())
         {
             g.push(s.top());
             s.pop();
         }
-        if (pivot > s.top())
+        else if (pivot > s.top())
         {
             l.push(s.top());
             s.pop();
@@ -373,7 +378,8 @@ int main()
     newStack2.push(3);
     newStack2.push(9);
     newStack2.push(21);
-    merge_stack(newStack1, newStack2);
+    //merge_stack(newStack1, newStack2);
 
+    quick_sort(newStack1);
     print_stack(newStack1);
 }
