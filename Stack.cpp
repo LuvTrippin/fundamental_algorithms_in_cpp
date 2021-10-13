@@ -251,10 +251,8 @@ bool equal_stack(Stack& Stack1, Stack& Stack2)
     }
     while (tmp3.size())
     {
-        Stack1.push(tmp3.top());
-        Stack2.push(tmp4.top());
-        tmp3.pop();
-        tmp4.pop();
+        move_top_stack_to_stack(tmp3, Stack1);
+        move_top_stack_to_stack(tmp4, Stack2);
     }
     sort_stack(tmp1);
     sort_stack(tmp2);
@@ -284,18 +282,15 @@ void quick_sort(Stack& s)
     {
         if (pivot == s.top())
         {
-            e.push(pivot);
-            s.pop();
+            move_top_stack_to_stack(s, e);
         }
         else if (pivot < s.top())
         {
-            g.push(s.top());
-            s.pop();
+            move_top_stack_to_stack(s, g);
         }
         else if (pivot > s.top())
         {
-            l.push(s.top());
-            s.pop();
+            move_top_stack_to_stack(s, l);
         }
     }
 
