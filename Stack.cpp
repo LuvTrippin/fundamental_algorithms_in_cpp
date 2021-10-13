@@ -233,6 +233,14 @@ void from_stack_to_stack(Stack& source, Stack& dest)
 }
 
 template <typename Stack>
+auto get_top(Stack &source)
+{
+    auto tmp = source.top();
+    source.pop();
+    return tmp;
+}
+
+template <typename Stack>
 bool equal_stack(Stack& Stack1, Stack& Stack2)
 {
     Stack tmp1, tmp2, tmp3, tmp4;
@@ -277,7 +285,8 @@ void quick_sort(Stack& s)
         return;
     }
     Stack l, g, e;
-    auto pivot = s.top();
+    auto pivot = get_top(s);
+    e.push(pivot);
     while (s.size())
     {
         if (pivot == s.top())
