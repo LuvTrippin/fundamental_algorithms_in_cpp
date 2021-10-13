@@ -314,28 +314,26 @@ void quick_sort(Stack& s)
 
 
 template <typename Stack>
-void merge_stack(Stack &s1, Stack &s2)
+void merge_stacks_to(Stack &s1, Stack &s2, Stack &dest)
 {
-    auto a = s1.top();
-    stack_sort(s1);
-    bool b = a != s1.top();
-    Stack newStack;
-
-    from_stack_to_stack(s1, s2);
-    from_stack_to_stack(s2, newStack);
-    stack_sort(newStack);
-    from_stack_to_stack(newStack, s2);
-    from_stack_to_stack(s2, s1);
-
-    if (!b)
+    while (s1.size() && s2.size())
     {
-        return;
+        if (s1.top() < s2.top())
+        {
+            move_top_stack_to_stack(s2, dest);
+        }
+        else if (s1.top() > s2.top())
+        {
+            move_top_stack_to_stack(s1, dest);
+        }
+        else
+        {
+            move_top_stack_to_stack(s1, dest);
+            move_top_stack_to_stack(s2, dest);
+        }
     }
-
-    from_stack_to_stack(s1, s2);
-    from_stack_to_stack(s2, newStack);
-    from_stack_to_stack(newStack, s1);
-
+    from_stack_to_stack(s1, dest);
+    from_stack_to_stack(s2, dest);
 }
 
 bool correct_bracket_sequence(std::string& s)
