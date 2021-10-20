@@ -5,6 +5,9 @@
 #include <stack> 
 #include <ctime>
 #include <string>
+#include <optional>
+#include <set>
+#include <algorithm>
 
 template <typename T>
 class stackM
@@ -364,7 +367,7 @@ bool correct_bracket_sequence(std::string& s)
 }
 
 template <typename Stack>
-void merge_sort(Stack &s)
+void merge_sort(Stack& s)
 {
     if (s.size() == 1)
     {
@@ -388,11 +391,12 @@ void merge_sort(Stack &s)
     from_stack_to_stack(tmp, s);
 }
 
-double find_major_elem(const std::vector<double>& sequence)
+template <typename T>
+std::optional<T> find_major_elem(const std::vector<T>& sequence)
 {
-    stackM<double> dest;
+    stackM<T> dest;
     int count = 0;
-    for (auto item : sequence)
+    for (const auto &item : sequence)
     {
         if (!dest.size())
         {
@@ -409,7 +413,7 @@ double find_major_elem(const std::vector<double>& sequence)
     }
     if (!dest.size())
     {
-        return 0;
+        return std::nullopt;
     }
     for (auto item : sequence)
     {
@@ -424,7 +428,7 @@ double find_major_elem(const std::vector<double>& sequence)
     }
 }
 
-double find_the_volume(const std::vector<double> &heights)
+double find_the_volume(const std::vector<double>& heights)
 {
     double V = 0;
     for (int i = 0; i < heights.size() - 2; i++)
@@ -436,19 +440,39 @@ double find_the_volume(const std::vector<double> &heights)
     }
     return V;
 }
+
+using graph_v = std::vector<std::vector<int>>;
+using graph_s = std::vector<std::set<int>>;
+
+std::vector<int> euler_path(const graph_v& G)
+{
+    graph_v g = G;
+    int s = (std::find_if(g.begin(), g.end(), 
+        [](auto& lst) {return lst.size() % 2; }) - g.begin()) % g.size();
+    std::stack<int> vertex_stack;
+    std::vector<int> out;
+    vertex_stack.push(s);
+    while (vertex_stack.size())
+    {
+        //дописать код
+    }
+    return out;
+}
+
+
 int main()
 {
 
     stackM<int> newStack1;
     stackM<int> newStack2;
     std::vector<double> newVect;
-    newVect.push_back(3.);
+    newVect.push_back(2.);
+    newVect.push_back(2.);
+    newVect.push_back(2.);
+    newVect.push_back(2.);
     newVect.push_back(2.);
     newVect.push_back(4.);
-    newVect.push_back(5.);
-    newVect.push_back(3.);
-    newVect.push_back(4.);
-    newVect.push_back(1.);
+    newVect.push_back(2.);
     newVect.push_back(5.);
 
     newStack1.push(10);
@@ -466,6 +490,14 @@ int main()
     //print_stack(newStack1);
     //merge_sort(newStack1);
     //print_stack(newStack1);
-    //std::cout << find_major_elem(newVect);
-    std::cout << find_the_volume(newVect);
+    auto res = find_major_elem(newVect);
+    if (res)
+    {
+        std::cout << *res;
+    }
+    else
+    {
+        std::cout << "not found";
+    }
+    //std::cout << find_the_volume(newVect);
 }
