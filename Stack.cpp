@@ -233,7 +233,7 @@ void from_stack_to_stack(Stack& source, Stack& dest)
 }
 
 template <typename Stack>
-auto get_top(Stack &source)
+auto get_top(Stack& source)
 {
     auto tmp = source.top();
     source.pop();
@@ -314,7 +314,7 @@ void quick_sort(Stack& s)
 
 
 template <typename Stack>
-void merge_stacks_to(Stack &s1, Stack &s2, Stack &dest)
+void merge_stacks_to(Stack& s1, Stack& s2, Stack& dest)
 {
     while (s1.size() && s2.size())
     {
@@ -363,25 +363,109 @@ bool correct_bracket_sequence(std::string& s)
         return 1;
 }
 
+template <typename Stack>
+void merge_sort(Stack &s)
+{
+    if (s.size() == 1)
+    {
+        return;
+    }
+    Stack left_half_stack;
+    Stack right_half_stack;
+    Stack tmp;
+    for (int i = 0; i < s.size() / 2; i++)
+    {
+        move_top_stack_to_stack(s, left_half_stack);
+    }
+    while (s.size())
+    {
+        move_top_stack_to_stack(s, right_half_stack);
+    }
+
+    merge_sort(left_half_stack);
+    merge_sort(right_half_stack);
+    merge_stacks_to(left_half_stack, right_half_stack, tmp);
+    from_stack_to_stack(tmp, s);
+}
+
+double find_major_elem(const std::vector<double>& sequence)
+{
+    stackM<double> dest;
+    int count = 0;
+    for (auto item : sequence)
+    {
+        if (!dest.size())
+        {
+            dest.push(item);
+        }
+        else if (dest.top() == item)
+        {
+            dest.push(item);
+        }
+        else
+        {
+            dest.pop();
+        }
+    }
+    if (!dest.size())
+    {
+        return 0;
+    }
+    for (auto item : sequence)
+    {
+        if (dest.top() == item)
+        {
+            count++;
+        }
+    }
+    if (count > sequence.size() / 2)
+    {
+        return dest.top();
+    }
+}
+
+double find_the_volume(const std::vector<double> &heights)
+{
+    double V = 0;
+    for (int i = 0; i < heights.size() - 2; i++)
+    {
+        if (heights[i] > heights[i + 1] && heights[i + 1] < heights[i + 2])
+        {
+            V += std::min(heights[i], heights[i + 2]) - heights[i + 1];
+        }
+    }
+    return V;
+}
 int main()
 {
 
     stackM<int> newStack1;
     stackM<int> newStack2;
+    std::vector<double> newVect;
+    newVect.push_back(3.);
+    newVect.push_back(2.);
+    newVect.push_back(4.);
+    newVect.push_back(5.);
+    newVect.push_back(3.);
+    newVect.push_back(4.);
+    newVect.push_back(1.);
+    newVect.push_back(5.);
 
-    newStack1.push(0);
+    newStack1.push(10);
     newStack1.push(1);
     newStack1.push(4);
-    newStack1.push(7);
-    newStack1.push(10);
+    newStack1.push(0);
+    newStack1.push(8);
 
-    newStack2.push(1);
-    newStack2.push(2);
-    newStack2.push(3);
-    newStack2.push(9);
-    newStack2.push(21);
+    newStack1.push(3);
+    newStack1.push(21);
+    newStack1.push(13);
+    newStack1.push(9);
+    newStack1.push(2);
     //merge_stack(newStack1, newStack2);
-
-    quick_sort(newStack1);
-    print_stack(newStack1);
+    //print_stack(newStack1);
+    //merge_sort(newStack1);
+    //print_stack(newStack1);
+    //std::cout << find_major_elem(newVect);
+    std::cout << find_the_volume(newVect);
 }
