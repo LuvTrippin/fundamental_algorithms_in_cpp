@@ -288,8 +288,15 @@ void quick_sort(Stack& s)
         return;
     }
     Stack l, g, e;
-    auto pivot = get_top(s);
-    e.push(pivot);
+    for (int i = 0; i < s.size() / 2; i++)
+    {
+        move_top_stack_to_stack(s, l);
+    }
+    auto pivot = s.top();
+    while(l.size())
+    {
+        from_stack_to_stack(l, s);
+    }
     while (s.size())
     {
         if (pivot == s.top())
@@ -391,12 +398,48 @@ void merge_sort(Stack& s)
     from_stack_to_stack(tmp, s);
 }
 
+template<class Stack>
+void natural_merge_sort(Stack& s)
+{
+    Stack tmp1, tmp2;
+    Stack res;
+    int size = s.size();
+    int n = 0;
+    while (n < size)
+    {
+        while (s.size() != 0)
+        {
+
+            move_elem(s, tmp1);
+            if (tmp1.size() == size)
+            {
+                n = tmp1.size();
+                break;
+            }
+            move_elem(s, tmp2);
+            Stack t;
+            merge_stacks_to(tmp1, tmp2, t);
+            from_stack_to_stack(t, res);
+        }
+        while (res.size() != 0)
+        {
+            move_elem(res, tmp1);
+            move_elem(res, tmp2);
+            Stack t;
+            merge_stacks_to(tmp1, tmp2, t);
+            from_stack_to_stack(t, s);
+        }
+    }
+
+    from_stack_to_stack(tmp1, s);
+}
+
 template <typename T>
 std::optional<T> find_major_elem(const std::vector<T>& sequence)
 {
     stackM<T> dest;
     int count = 0;
-    for (const auto &item : sequence)
+    for (const auto& item : sequence)
     {
         if (!dest.size())
         {
@@ -428,33 +471,66 @@ std::optional<T> find_major_elem(const std::vector<T>& sequence)
     }
 }
 
-double find_the_volume(const std::vector<double>& heights)
+template <typename T>
+double block_stone(std::vector<T> brick)
 {
-    double V = 0;
-    for (int i = 0; i < heights.size() - 2; i++)
+
+    std::stack<T> s;
+    for (int i = 0; i < brick.size() - 1; i++)
     {
-        if (heights[i] > heights[i + 1] && heights[i + 1] < heights[i + 2])
+        if (brick[i] > brick[i + 1])
         {
-            V += std::min(heights[i], heights[i + 2]) - heights[i + 1];
+            s.push(i);
+            break;
         }
     }
-    return V;
+    if (!s.size())
+    {
+        return 0.0;
+    }
+    double res = 0.0;
+    for (int j = s.top() + 1; j < brick.size(); j++)
+        if (brick[s.top()] >= brick[j])
+            s.push(j);
+        else
+        {
+            while (brick[s.top()] < brick[j])
+            {
+                double h = brick[s.top()];
+                s.pop();
+                if (s.size())
+                    res += (j - s.top() - 1) * (min(brick[s.top()], brick[j]) - h);
+            }
+            s.push(j);
+        }
+    return res;
 }
 
-using graph_v = std::vector<std::vector<int>>;
 using graph_s = std::vector<std::set<int>>;
+using graph_v = std::vector<std::vector<int>>;
 
-std::vector<int> euler_path(const graph_v& G)
+std::vector<int> euler_path(const graph_s& G)
 {
-    graph_v g = G;
-    int s = (std::find_if(g.begin(), g.end(), 
-        [](auto& lst) {return lst.size() % 2; }) - g.begin()) % g.size();
-    std::stack<int> vertex_stack;
+    graph_s g = G;
+    std::stack<int> s;
     std::vector<int> out;
-    vertex_stack.push(s);
-    while (vertex_stack.size())
-    {
-        //дописать код
+    int startVertex = (find_if(g.begin(), g.end(),
+        [](auto& lst) {return lst.size() % 2; }) - g.begin()) % g.size();
+    s.push(startVertex);
+
+    while (!s.empty()) {
+        int w = s.top();
+
+        if (g[w].empty()) {
+            out.push_back(s.top());
+            s.pop();
+        }
+        else
+        {
+            s.push(*g[w].begin());
+            g[w].erase(s.top());
+            g[s.top()].erase(w);
+        }
     }
     return out;
 }
@@ -490,7 +566,7 @@ int main()
     //print_stack(newStack1);
     //merge_sort(newStack1);
     //print_stack(newStack1);
-    auto res = find_major_elem(newVect);
+    /*auto res = find_major_elem(newVect);
     if (res)
     {
         std::cout << *res;
@@ -498,6 +574,10 @@ int main()
     else
     {
         std::cout << "not found";
-    }
+    }*/
     //std::cout << find_the_volume(newVect);
+    std::vector<int> a = { 10,9,8,6,7,10 };
+    double b;
+    b = block_stone(a);
+    std::cout << b;
 }
