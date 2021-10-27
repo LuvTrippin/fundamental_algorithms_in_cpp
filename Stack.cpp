@@ -27,6 +27,13 @@ public:
     void pop();
     int size();
     typedef typename T value_type;
+
+    friend void swap(stackM<T> &s1, stackM<T> &s2)
+    {
+        std::swap(s1.sizeOfStack, s2.sizeOfStack);
+        std::swap(s1.data, s2.data);
+
+    }
 };
 
 template <typename T>
@@ -94,6 +101,13 @@ private:
 public:
     int count = 0;
     Node* top = NULL;
+
+    friend void swap(stackM<T>& s1, stackM<T>& s2)
+    {
+        std::swap(s1.link, s2.link);
+        std::swap(s1.data, s2.data);
+
+    }
 
     void push(T value)
     {
@@ -293,7 +307,7 @@ void quick_sort(Stack& s)
         move_top_stack_to_stack(s, l);
     }
     auto pivot = s.top();
-    while(l.size())
+    while (l.size())
     {
         from_stack_to_stack(l, s);
     }
@@ -398,40 +412,25 @@ void merge_sort(Stack& s)
     from_stack_to_stack(tmp, s);
 }
 
-template<class Stack>
+template<typename Stack>
 void natural_merge_sort(Stack& s)
 {
-    Stack tmp1, tmp2;
-    Stack res;
-    int size = s.size();
-    int n = 0;
-    while (n < size)
+    if (s.size() <= 1) return;
+
+    Stack tmp1, tmp2, res;
+    int count = 0;
+    while (count != 1)
     {
-        while (s.size() != 0)
+        count = 0;
+        while (s.size())
         {
-
-            move_elem(s, tmp1);
-            if (tmp1.size() == size)
-            {
-                n = tmp1.size();
-                break;
-            }
-            move_elem(s, tmp2);
-            Stack t;
-            merge_stacks_to(tmp1, tmp2, t);
-            from_stack_to_stack(t, res);
+            mov_elems_from_stack_to_stack(s, tmp1);
+            mov_elems_from_stack_to_stack(s, tmp2);
+            merge_stacks_to(tmp1, tmp2, res);
+            count++;
         }
-        while (res.size() != 0)
-        {
-            move_elem(res, tmp1);
-            move_elem(res, tmp2);
-            Stack t;
-            merge_stacks_to(tmp1, tmp2, t);
-            from_stack_to_stack(t, s);
-        }
+        swap(res, s);
     }
-
-    from_stack_to_stack(tmp1, s);
 }
 
 template <typename T>
@@ -471,40 +470,6 @@ std::optional<T> find_major_elem(const std::vector<T>& sequence)
     }
 }
 
-template <typename T>
-double block_stone(std::vector<T> brick)
-{
-
-    std::stack<T> s;
-    for (int i = 0; i < brick.size() - 1; i++)
-    {
-        if (brick[i] > brick[i + 1])
-        {
-            s.push(i);
-            break;
-        }
-    }
-    if (!s.size())
-    {
-        return 0.0;
-    }
-    double res = 0.0;
-    for (int j = s.top() + 1; j < brick.size(); j++)
-        if (brick[s.top()] >= brick[j])
-            s.push(j);
-        else
-        {
-            while (brick[s.top()] < brick[j])
-            {
-                double h = brick[s.top()];
-                s.pop();
-                if (s.size())
-                    res += (j - s.top() - 1) * (min(brick[s.top()], brick[j]) - h);
-            }
-            s.push(j);
-        }
-    return res;
-}
 
 using graph_s = std::vector<std::set<int>>;
 using graph_v = std::vector<std::vector<int>>;
@@ -539,29 +504,18 @@ std::vector<int> euler_path(const graph_s& G)
 int main()
 {
 
-    stackM<int> newStack1;
-    stackM<int> newStack2;
-    std::vector<double> newVect;
-    newVect.push_back(2.);
-    newVect.push_back(2.);
-    newVect.push_back(2.);
-    newVect.push_back(2.);
-    newVect.push_back(2.);
-    newVect.push_back(4.);
-    newVect.push_back(2.);
-    newVect.push_back(5.);
+    std::stack<int> newStack1;
 
-    newStack1.push(10);
-    newStack1.push(1);
-    newStack1.push(4);
-    newStack1.push(0);
-    newStack1.push(8);
-
-    newStack1.push(3);
-    newStack1.push(21);
-    newStack1.push(13);
-    newStack1.push(9);
-    newStack1.push(2);
+    for (int i = 0; i < 50000; i++)
+    {
+        newStack1.push(rand());
+    }
+    unsigned int start_time = clock(); // начальное время
+    natural_merge_sort(newStack1);
+    unsigned int end_time = clock(); // конечное время
+    unsigned int search_time = end_time - start_time; // искомое время
+    //print_stack(newStack1);
+    std::cout << end_time - start_time;
     //merge_stack(newStack1, newStack2);
     //print_stack(newStack1);
     //merge_sort(newStack1);
@@ -576,8 +530,8 @@ int main()
         std::cout << "not found";
     }*/
     //std::cout << find_the_volume(newVect);
-    std::vector<int> a = { 10,9,8,6,7,10 };
+    /*std::vector<int> a = { 10,9,8,6,7,10 };
     double b;
     b = block_stone(a);
-    std::cout << b;
+    std::cout << b;*/
 }
