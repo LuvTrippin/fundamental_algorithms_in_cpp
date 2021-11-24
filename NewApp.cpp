@@ -124,7 +124,7 @@ matrix matrix::operator=(const matrix& arg2)
     return res;
 }
 
-matrix matrix::transpose() 
+matrix matrix::transpose()
 {
     matrix trans_res(m.size(), m[0].size());
     for (int i = 0; i < m.size(); i++)
@@ -184,10 +184,14 @@ matrix matrix::operator^(int n) const
     matrix res = matrix::create_unit_matrix(m.size());
     matrix pow;
     pow.m = this->m;
-    while (n > 0)
+    if (n < 0)
     {
-        if (n % 2 == 1)
-        {   
+        pow = pow.inverse();
+    }
+    while (abs(n) > 0)
+    {
+        if (abs(n) % 2 == 1)
+        {
             res = (pow * res);
         }
         n /= 2;
@@ -215,17 +219,21 @@ void matrix::print_matrix()
 matrix matrix::inverse() const
 {
     if (rows() != cols())
-        return 0;
+        return 0.0;
     matrix M{ *this };
+    if (M.det() == 0)
+    {
+        return 0;
+    }
     matrix E = matrix::create_unit_matrix(M.size());
     double d = 1.0;
     for (size_t k = 0, N = size(); k < N; k++)
     {
-        if (M[k][k] == 0)
+        if (abs(M[k][k]) < pow(10, -15))
         {
             for (size_t i = k + 1; i < N; i++)
             {
-                if (M[i][k] != 0)
+                if (abs(M[i][k]) > pow(10, -15))
                 {
                     iter_swap(M.m.begin() + k, M.m.begin() + i);
                     iter_swap(E.m.begin() + k, E.m.begin() + i);
@@ -239,17 +247,12 @@ matrix matrix::inverse() const
             M[k][j] /= mkk;
             E[k][j] /= mkk;
         }
-        for (size_t i = k + 1; i < N; i++)
+        for (size_t i = 0; i < N; i++)
         {
-            double mik = M[i][k];
-            for (size_t j = 0; j < N; j++)
+            if (i == k)
             {
-                M[i][j] -= mik * M[k][j];
-                M[i][j] -= mik * E[k][j];
+                continue;
             }
-        }
-        for (size_t i = k - 1; i >= 0; i--)
-        {
             double mik = M[i][k];
             for (size_t j = 0; j < N; j++)
             {
@@ -275,10 +278,11 @@ double matrix::det() const
         {
             for (size_t i = k + 1; i < N; i++)
             {
-                if (M[i][k] != 0)
+                if (M[i][k] != 0) // -> 0 
                 {
                     iter_swap(M.m.begin() + k, M.m.begin() + i);
                     count_swaps++;
+                    break;
                 }
             }
         }
@@ -305,4 +309,24 @@ double matrix::det() const
 std::vector<double> matrix::gaussian_elimination(const std::vector<double>& rhs)
 {
     return std::vector<double>();
+}
+
+using graph = std::vector<std::vector<int>>;
+graph decode_prufer(const std::vector<int> &code)
+{
+    int N = code.size() + 2;
+    graph g(N);
+    std::vector<int> unused(N);
+    for (int i = 0; i < N; i++)
+        unused[i] = i;
+    for (int i = 0; i < code.size(); i++)
+    {
+        auto it = find_if(unused.begin(), unused.end(), [&code](auto x) {return find(code.begin() + i, code.end(), x) == code.end();});
+        g[code[i]].push_back(*it);
+        g[*it].push_back(code[i]);
+        unused.erase(it);
+    }
+    g[unused[0]].push_back(unused[1]);
+    g[unused[1]].push_back(unused[0]);
+    return g;
 }
